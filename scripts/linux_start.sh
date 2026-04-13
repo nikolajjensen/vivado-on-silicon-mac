@@ -12,40 +12,20 @@ RESOLUTION="${vnc_default_resolution}"
 SCALE=1
 [ -f "$script_dir/display.conf" ] && source "$script_dir/display.conf"
 
-# Derived display values
-DPI=$((96 * SCALE))
-DPI_1024=$((96 * SCALE * 1024))  # lxsession stores DPI as integer * 1024
-PANEL_SIZE=$((26 * SCALE))       # panel height and icon size (base 26px)
-CURSOR_SIZE=$((18 * SCALE))      # GTK cursor theme size (base 18px)
-
-# Generate .Xresources from display config
-cat > /home/user/.Xresources << EOF
-Xft.dpi: $DPI
-Xft.autohint: 0
-Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintfull
-Xft.hinting: 1
-Xft.antialias: 1
-Xft.rgba: rgb
-EOF
-
-# Apply panel height and icon size scaling to lxpanel config
-if [ -f "/home/user/.config/lxpanel/LXDE/panels/panel" ]; then
-    sed -i "s/height=[0-9]*/height=$PANEL_SIZE/" /home/user/.config/lxpanel/LXDE/panels/panel
-    sed -i "s/iconsize=[0-9]*/iconsize=$PANEL_SIZE/" /home/user/.config/lxpanel/LXDE/panels/panel
-fi
-
-# Apply DPI and cursor size to lxsession desktop config
+# Apply DPI scaling to lxsession config before LXDE starts.
+# iXft/DPI is stored as integer DPI * 1024 (e.g. SCALE=2 → 96*2*1024 = 196608).
+DPI_1024=$((96 * SCALE * 1024))
 if [ -f "/home/user/.config/lxsession/LXDE/desktop.conf" ]; then
     sed -i "s|iXft/DPI=[0-9]*|iXft/DPI=$DPI_1024|" /home/user/.config/lxsession/LXDE/desktop.conf
-    sed -i "s|iGtk/CursorThemeSize=[0-9]*|iGtk/CursorThemeSize=$CURSOR_SIZE|" /home/user/.config/lxsession/LXDE/desktop.conf
 fi
 
 # generate encoded password file from plain text
 mkdir /home/user/.vnc &> /dev/null
 cat "$script_dir/vncpasswd" | vncpasswd -f > /home/user/.vnc/passwd
 
-vncserver -DisconnectClients -NeverShared -nocursor -geometry "$RESOLUTION" -dpi "$DPI" -SecurityTypes VncAuth -PasswordFile /home/user/.vnc/passwd -localhost no -verbose -fg -RawKeyboard -RemapKeys "0xffe9->0xff7e,0xffe7->0xff7e" -- LXDE
+#vncserver -DisconnectClients -NeverShared -nocursor -geometry "$RESOLUTION" -dpi "$DPI" -SecurityTypes VncAuth -PasswordFile /home/user/.vnc/passwd -localhost no -verbose -fg -RawKeyboard -RemapKeys "0xffe9->0xff7e,0xffe7->0xff7e" -- LXDE
+vncserver -DisconnectClients -NeverShared -nocursor -geometry "$RESOLUTION" -SecurityTypes VncAuth -PasswordFile /home/user/.vnc/passwd -localhost no -verbose -fg -RawKeyboard -RemapKeys "0xffe9->0xff7e,0xffe7->0xff7e" -- LXDE
+
 # explanation (see also TigerVNC manual):
 #
 # -DisconnectClients -NeverShared:
