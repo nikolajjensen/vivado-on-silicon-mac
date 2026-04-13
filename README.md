@@ -50,6 +50,13 @@ If you want to exchange files with the container, you need to store them inside 
 
 You can allocate more/less memory and CPU resources to Vivado by going to the Resources tab in the Docker settings.
 
+### Display resolution and scaling
+Open `scripts/display.conf` to adjust the display settings:
+- `RESOLUTION` — the VNC framebuffer size (e.g. `1920x1080` for a standard display, `5120x2880` for a 5K display).
+- `SCALE` — an integer scale factor. Use `1` for standard displays and `2` for HiDPI/5K displays. Setting `SCALE=2` doubles the size of all UI elements in both the LXDE desktop and Vivado.
+
+Restart the container after making changes.
+
 ### Notes
 
 If the installation fails or Vivado crashes, consider:
@@ -88,7 +95,7 @@ This version of xvcd only supports the FT2232C chip. There are forks of this sof
 - `cleanup.sh`: Removes Vivado and dotfiles.
 - `xvcd`: [xvcd](https://github.com/tmbinc/xvcd) source and binary copy
 - `install_bin`: Full path to Vivado installation binary
-- `vnc_resolution`: Manually adjustable resolution of the container GUI, formatted like "widthxheight"
+- `display.conf`: Display configuration. Set `RESOLUTION` (e.g. `1920x1080`) and `SCALE` (`1` for standard, `2` for HiDPI/5K).
 - `vncpasswd`: Password for the VNC connection. It is purposefully weak, as it serves no security function. The VNC server inside the container will not allow outside connections. The password can be changed manually nonetheless.
 
 ## License, copyright and trademark information

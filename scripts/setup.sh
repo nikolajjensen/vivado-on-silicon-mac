@@ -131,20 +131,33 @@ then
 	exit 1
 fi
 
-# Set VNC resolution
+# Set display configuration
 f_echo "Set the resolution of the container. Keep in mind that high resolutions might make text and images appear small."
-f_echo "You can change the resolution manually in the vnc_resolution file later."
+f_echo "You can change these settings in scripts/display.conf later."
 f_echo "Press enter to leave the default (1920x1080) or type in your preference:"
 read resolution
-# if resolution has the right format
 if [[ $resolution =~ "^[0-9]+x[0-9]+$" ]]
 then
-	f_echo "Setting $resolution as resolution"
-	echo "$resolution" > "$script_dir/vnc_resolution"
+	f_echo "Setting resolution to $resolution"
+	chosen_resolution=$resolution
 else
-	f_echo "Setting the default of $vnc_default_resolution"
-	echo "$vnc_default_resolution" > "$script_dir/vnc_resolution"
+	f_echo "Setting resolution to default ($vnc_default_resolution)"
+	chosen_resolution=$vnc_default_resolution
 fi
+
+f_echo "Set the scale factor (integer). 1 = standard (1080p), 2 = HiDPI (5K)."
+f_echo "Press enter to leave the default (1):"
+read scale
+if [[ $scale =~ "^[1-9][0-9]*$" ]]
+then
+	f_echo "Setting scale to $scale"
+	chosen_scale=$scale
+else
+	f_echo "Setting scale to default (1)"
+	chosen_scale=1
+fi
+
+printf 'RESOLUTION=%s\nSCALE=%s\n' "$chosen_resolution" "$chosen_scale" > "$script_dir/display.conf"
 echo ""
 
 # copy de_start.desktop autostart file

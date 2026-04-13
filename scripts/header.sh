@@ -134,7 +134,6 @@ function find_vivado_dir {
     return 1
 }
 
-# The actual resolution is stored in the file vnc_resolution
 vnc_default_resolution="1920x1080"
 
 current_user=$(whoami)
