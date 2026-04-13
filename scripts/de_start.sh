@@ -9,15 +9,6 @@ validate_linux
 
 export LD_PRELOAD="/lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libselinux.so.1 /lib/x86_64-linux-gnu/libz.so.1 /lib/x86_64-linux-gnu/libgdk-x11-2.0.so.0"
 
-# Load display config (SCALE controls GTK and cursor scaling)
-#SCALE=1
-#[ -f "$script_dir/display.conf" ] && source "$script_dir/display.conf"
-
-#export GDK_SCALE=$SCALE
-#export GDK_DPI_SCALE=1
-#export XCURSOR_SIZE=$((24 * SCALE))
-#xrdb -merge /home/user/.Xresources
-
 vivado_dir=$(find_vivado_dir)
 
 # if Vivado is installed

@@ -12,19 +12,29 @@ RESOLUTION="${vnc_default_resolution}"
 SCALE=1
 [ -f "$script_dir/display.conf" ] && source "$script_dir/display.conf"
 
-# Apply DPI scaling to lxsession config before LXDE starts.
-# iXft/DPI is stored as integer DPI * 1024 (e.g. SCALE=2 → 96*2*1024 = 196608).
-DPI_1024=$((96 * SCALE * 1024))
+# Apply scaling to UI components before LXDE starts.
+DPI=$((96 * SCALE))
+DPI_1024=$((DPI * 1024))          # lxsession stores DPI as integer * 1024
+PANEL_SIZE=$((26 * SCALE))        # lxpanel height and icon size (base 26px)
+
+# Vivado scales with iXft/DPI in lxsession (e.g. SCALE=2 → 196608)
 if [ -f "/home/user/.config/lxsession/LXDE/desktop.conf" ]; then
     sed -i "s|iXft/DPI=[0-9]*|iXft/DPI=$DPI_1024|" /home/user/.config/lxsession/LXDE/desktop.conf
 fi
+
+# Taskbar height and icon size
+mkdir -p /home/user/.config/lxpanel/LXDE/panels
+if [ ! -f "/home/user/.config/lxpanel/LXDE/panels/panel" ]; then
+    cp "$script_dir/default/lxpanel-panel.conf" /home/user/.config/lxpanel/LXDE/panels/panel
+fi
+sed -i "s/height=[0-9]*/height=$PANEL_SIZE/" /home/user/.config/lxpanel/LXDE/panels/panel
+sed -i "s/iconsize=[0-9]*/iconsize=$PANEL_SIZE/" /home/user/.config/lxpanel/LXDE/panels/panel
 
 # generate encoded password file from plain text
 mkdir /home/user/.vnc &> /dev/null
 cat "$script_dir/vncpasswd" | vncpasswd -f > /home/user/.vnc/passwd
 
-#vncserver -DisconnectClients -NeverShared -nocursor -geometry "$RESOLUTION" -dpi "$DPI" -SecurityTypes VncAuth -PasswordFile /home/user/.vnc/passwd -localhost no -verbose -fg -RawKeyboard -RemapKeys "0xffe9->0xff7e,0xffe7->0xff7e" -- LXDE
-vncserver -DisconnectClients -NeverShared -nocursor -geometry "$RESOLUTION" -SecurityTypes VncAuth -PasswordFile /home/user/.vnc/passwd -localhost no -verbose -fg -RawKeyboard -RemapKeys "0xffe9->0xff7e,0xffe7->0xff7e" -- LXDE
+vncserver -DisconnectClients -NeverShared -nocursor -geometry "$RESOLUTION" -dpi "$DPI" -SecurityTypes VncAuth -PasswordFile /home/user/.vnc/passwd -localhost no -verbose -fg -RawKeyboard -RemapKeys "0xffe9->0xff7e,0xffe7->0xff7e" -- LXDE
 
 # explanation (see also TigerVNC manual):
 #
